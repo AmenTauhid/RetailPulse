@@ -10,7 +10,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.app.core.config import get_settings
-from api.app.routers import anomalies, categories, forecasts, health, historical, insights, stores
+from api.app.routers import (
+    anomalies,
+    categories,
+    chat,
+    forecasts,
+    health,
+    historical,
+    insights,
+    stores,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +73,7 @@ def create_app() -> FastAPI:
     app.include_router(historical.router, prefix="/api/v1", tags=["Historical"])
     app.include_router(anomalies.router, prefix="/api/v1", tags=["Anomalies"])
     app.include_router(insights.router, prefix="/api/v1", tags=["Insights"])
+    app.include_router(chat.router, prefix="/api/v1", tags=["Chat"])
 
     return app
 
