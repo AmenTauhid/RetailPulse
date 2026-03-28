@@ -46,6 +46,7 @@ jobs:
           pip install -r data/scripts/requirements.txt \
                       -r api/requirements.txt \
                       -r ml/requirements.txt \
+                      anthropic \
                       pytest pytest-asyncio pyyaml
       - name: Seed database
         env:
