@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# ML artifacts
+ml/outputs/
+*.joblib
+*.pkl
+*.h5
+
+# Node / Next.js
+node_modules/
+web/.next/
+web/out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# Data (large generated files)
+data/sample/*.csv
+data/sample/*.parquet
+!data/sample/.gitkeep
+
+# Test / Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+coverage/
