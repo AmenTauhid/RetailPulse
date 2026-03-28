@@ -6,16 +6,12 @@ Usage:
 """
 
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
 
-import numpy as np
-
 from data.scripts.db.session import get_session_factory
 from ml.features.feature_builder import (
-    FEATURE_COLUMNS,
     TARGET_COLUMN,
     build_features,
 )
@@ -36,8 +32,12 @@ logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate trained demand forecasting model")
-    parser.add_argument("--model-path", type=str, default="ml/outputs/xgboost_latest.joblib",
-                        help="Path to saved model")
+    parser.add_argument(
+        "--model-path",
+        type=str,
+        default="ml/outputs/xgboost_latest.joblib",
+        help="Path to saved model",
+    )
     args = parser.parse_args()
 
     model_path = Path(args.model_path)
@@ -86,7 +86,10 @@ def main():
         cat_metrics = compute_metrics(y_t, y_p)
         logger.info(
             "  Category %2d: RMSE=%.3f  MAE=%.3f  R²=%.3f",
-            cat_id, cat_metrics.rmse, cat_metrics.mae, cat_metrics.r2,
+            cat_id,
+            cat_metrics.rmse,
+            cat_metrics.mae,
+            cat_metrics.r2,
         )
 
 

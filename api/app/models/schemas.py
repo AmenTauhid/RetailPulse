@@ -1,12 +1,11 @@
 """Pydantic response and request schemas for the API."""
 
 from datetime import date
-from decimal import Decimal
 
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel
 
 # --- Generic ---
+
 
 class ErrorResponse(BaseModel):
     detail: str
@@ -14,6 +13,7 @@ class ErrorResponse(BaseModel):
 
 
 # --- Stores ---
+
 
 class StoreResponse(BaseModel):
     id: int
@@ -31,6 +31,7 @@ class StoreResponse(BaseModel):
 
 # --- Categories ---
 
+
 class CategoryResponse(BaseModel):
     id: int
     name: str
@@ -42,6 +43,7 @@ class CategoryResponse(BaseModel):
 
 
 # --- Products ---
+
 
 class ProductResponse(BaseModel):
     id: int
@@ -55,6 +57,7 @@ class ProductResponse(BaseModel):
 
 
 # --- Historical ---
+
 
 class DailyDemandPoint(BaseModel):
     date: date
@@ -73,6 +76,7 @@ class HistoricalResponse(BaseModel):
 
 # --- Forecasts ---
 
+
 class ForecastPoint(BaseModel):
     date: date
     predicted_quantity: float
@@ -90,6 +94,7 @@ class ForecastResponse(BaseModel):
 
 
 # --- Anomalies ---
+
 
 class AnomalyResponse(BaseModel):
     store_id: int
@@ -111,6 +116,7 @@ class AnomalyListResponse(BaseModel):
 
 # --- Weather ---
 
+
 class WeatherResponse(BaseModel):
     store_id: int
     date: date
@@ -125,6 +131,7 @@ class WeatherResponse(BaseModel):
 
 
 # --- Insights ---
+
 
 class TopMover(BaseModel):
     category_id: int
@@ -154,6 +161,7 @@ class WeatherImpactResponse(BaseModel):
 
 
 # --- Model Info ---
+
 
 class ModelInfoResponse(BaseModel):
     model_type: str

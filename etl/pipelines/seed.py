@@ -18,7 +18,7 @@ import logging
 import sys
 from datetime import date
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select
 
 from data.scripts.db.base import Base, get_engine
 from data.scripts.db.models import (
@@ -76,7 +76,9 @@ def seed():
     with SessionFactory() as session:
         # Step 2: Stores
         if _table_count(session, Store) > 0:
-            logger.info("Step 2/8: Stores already seeded (%d rows). Skipping.", _table_count(session, Store))
+            logger.info(
+                "Step 2/8: Stores already seeded (%d rows). Skipping.", _table_count(session, Store)
+            )
         else:
             logger.info("Step 2/8: Inserting stores...")
             stores = generate_stores()
@@ -99,30 +101,32 @@ def seed():
             products = generate_products(categories)
             session.add_all(products)
             session.commit()
-            logger.info("  Inserted %d categories and %d products.",
-                        len(categories), len(products))
+            logger.info("  Inserted %d categories and %d products.", len(categories), len(products))
 
         categories = list(session.scalars(select(Category)).all())
         products = list(session.scalars(select(Product)).all())
 
         # Step 4: Synthetic weather
         if _table_count(session, WeatherDaily) > 0:
-            logger.info("Step 4/8: Weather data already seeded (%d rows). Skipping.",
-                        _table_count(session, WeatherDaily))
+            logger.info(
+                "Step 4/8: Weather data already seeded (%d rows). Skipping.",
+                _table_count(session, WeatherDaily),
+            )
         else:
             logger.info("Step 4/8: Generating synthetic weather data...")
             weather_records = generate_weather(stores, start_date, end_date)
             # Batch insert for performance
             batch_size = 5000
             for i in range(0, len(weather_records), batch_size):
-                session.add_all(weather_records[i:i + batch_size])
+                session.add_all(weather_records[i : i + batch_size])
                 session.commit()
             logger.info("  Inserted %d weather records.", len(weather_records))
 
         # Step 5: Synthetic events
         if _table_count(session, Event) > 0:
-            logger.info("Step 5/8: Events already seeded (%d rows). Skipping.",
-                        _table_count(session, Event))
+            logger.info(
+                "Step 5/8: Events already seeded (%d rows). Skipping.", _table_count(session, Event)
+            )
         else:
             logger.info("Step 5/8: Generating synthetic events...")
             events = generate_events(start_date, end_date)
@@ -132,8 +136,10 @@ def seed():
 
         # Step 6: Real holidays from Nager.Date API
         if _table_count(session, Holiday) > 0:
-            logger.info("Step 6/8: Holidays already seeded (%d rows). Skipping.",
-                        _table_count(session, Holiday))
+            logger.info(
+                "Step 6/8: Holidays already seeded (%d rows). Skipping.",
+                _table_count(session, Holiday),
+            )
         else:
             logger.info("Step 6/8: Fetching holidays from Nager.Date API...")
             count = load_holidays(session, start_date.year, end_date.year)
@@ -143,8 +149,10 @@ def seed():
 
         # Step 7: Transactions
         if _table_count(session, Transaction) > 0:
-            logger.info("Step 7/8: Transactions already seeded (%d rows). Skipping.",
-                        _table_count(session, Transaction))
+            logger.info(
+                "Step 7/8: Transactions already seeded (%d rows). Skipping.",
+                _table_count(session, Transaction),
+            )
         else:
             logger.info("Step 7/8: Generating transactions (this may take a moment)...")
             # Build weather lookup
@@ -152,23 +160,32 @@ def seed():
             weather_map = {(w.store_id, w.date): w for w in weather_all}
 
             txns = generate_transactions(
-                stores, products, categories, weather_map, holidays,
-                start_date, end_date,
+                stores,
+                products,
+                categories,
+                weather_map,
+                holidays,
+                start_date,
+                end_date,
             )
             logger.info("  Generated %d transactions. Inserting in batches...", len(txns))
 
             batch_size = 10000
             for i in range(0, len(txns), batch_size):
-                session.add_all(txns[i:i + batch_size])
+                session.add_all(txns[i : i + batch_size])
                 session.commit()
                 if (i // batch_size) % 10 == 0:
-                    logger.info("    Inserted %d / %d...", min(i + batch_size, len(txns)), len(txns))
+                    logger.info(
+                        "    Inserted %d / %d...", min(i + batch_size, len(txns)), len(txns)
+                    )
             logger.info("  Inserted %d transactions.", len(txns))
 
         # Step 8: Daily aggregates
         if _table_count(session, DailyAggregate) > 0:
-            logger.info("Step 8/8: Aggregates already seeded (%d rows). Skipping.",
-                        _table_count(session, DailyAggregate))
+            logger.info(
+                "Step 8/8: Aggregates already seeded (%d rows). Skipping.",
+                _table_count(session, DailyAggregate),
+            )
         else:
             logger.info("Step 8/8: Computing daily aggregates...")
             txns = list(session.scalars(select(Transaction)).all())
@@ -176,7 +193,7 @@ def seed():
 
             batch_size = 5000
             for i in range(0, len(aggs), batch_size):
-                session.add_all(aggs[i:i + batch_size])
+                session.add_all(aggs[i : i + batch_size])
                 session.commit()
             logger.info("  Inserted %d aggregate records.", len(aggs))
 
@@ -185,7 +202,16 @@ def seed():
     logger.info("=" * 60)
     logger.info("Seed complete! Table summary:")
     with SessionFactory() as session:
-        for model in [Store, Category, Product, WeatherDaily, Event, Holiday, Transaction, DailyAggregate]:
+        for model in [
+            Store,
+            Category,
+            Product,
+            WeatherDaily,
+            Event,
+            Holiday,
+            Transaction,
+            DailyAggregate,
+        ]:
             count = _table_count(session, model)
             logger.info("  %-20s %s rows", model.__tablename__, f"{count:,}")
     logger.info("=" * 60)

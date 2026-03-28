@@ -15,9 +15,18 @@ NAGER_DATE_URL = "https://date.nager.at/api/v3/PublicHolidays/{year}/CA"
 
 # Map Nager.Date county codes to Canadian province codes
 COUNTY_TO_PROVINCE: dict[str, str] = {
-    "CA-AB": "AB", "CA-BC": "BC", "CA-MB": "MB", "CA-NB": "NB",
-    "CA-NL": "NL", "CA-NS": "NS", "CA-NT": "NT", "CA-NU": "NU",
-    "CA-ON": "ON", "CA-PE": "PE", "CA-QC": "QC", "CA-SK": "SK",
+    "CA-AB": "AB",
+    "CA-BC": "BC",
+    "CA-MB": "MB",
+    "CA-NB": "NB",
+    "CA-NL": "NL",
+    "CA-NS": "NS",
+    "CA-NT": "NT",
+    "CA-NU": "NU",
+    "CA-ON": "ON",
+    "CA-PE": "PE",
+    "CA-QC": "QC",
+    "CA-SK": "SK",
     "CA-YT": "YT",
 }
 
@@ -41,14 +50,16 @@ def parse_holidays(raw_holidays: list[dict]) -> list[dict]:
         provinces = h.get("counties") or [None]
         for county in provinces:
             province_code = COUNTY_TO_PROVINCE.get(county) if county else None
-            records.append({
-                "date": date.fromisoformat(h["date"]),
-                "name": h["localName"],
-                "country_code": "CA",
-                "province_code": province_code,
-                "is_public": h.get("global", True),
-                "holiday_type": h.get("types", ["Public"])[0] if h.get("types") else "Public",
-            })
+            records.append(
+                {
+                    "date": date.fromisoformat(h["date"]),
+                    "name": h["localName"],
+                    "country_code": "CA",
+                    "province_code": province_code,
+                    "is_public": h.get("global", True),
+                    "holiday_type": h.get("types", ["Public"])[0] if h.get("types") else "Public",
+                }
+            )
     return records
 
 
@@ -68,8 +79,10 @@ def load_holidays(session: Session, start_year: int, end_year: int) -> int:
 
         records = parse_holidays(raw)
         for record in records:
-            stmt = pg_insert(Holiday).values(**record).on_conflict_do_nothing(
-                constraint="uq_holiday_date_name_province"
+            stmt = (
+                pg_insert(Holiday)
+                .values(**record)
+                .on_conflict_do_nothing(constraint="uq_holiday_date_name_province")
             )
             session.execute(stmt)
             total_inserted += 1

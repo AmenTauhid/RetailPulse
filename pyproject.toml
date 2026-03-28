@@ -9,6 +9,17 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "RUF"]
+ignore = [
+    "B008",    # Depends() / Query() in FastAPI function defaults — standard pattern
+    "N806",    # X_train, X_test, etc. — ML convention for feature matrices
+    "RUF002",  # Ambiguous unicode in docstrings (multiplication sign)
+    "RUF003",  # Ambiguous unicode in comments (multiplication sign)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"api/app/services/chat.py" = ["E501"]  # Tool descriptions are long strings
+"data/scripts/generate_transactions.py" = ["E501"]  # Formula docstring
+"data/scripts/generate_weather.py" = ["E501"]  # Docstring
 
 [tool.pytest.ini_options]
 testpaths = ["etl/tests", "ml/tests", "api/tests"]

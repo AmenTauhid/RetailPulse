@@ -32,6 +32,7 @@ class TestFetchHolidays:
     @patch("etl.pipelines.holiday_pipeline.httpx.get")
     def test_handles_api_error(self, mock_get):
         import httpx
+
         mock_get.side_effect = httpx.HTTPError("Connection failed")
 
         result = fetch_holidays_for_year(2024)

@@ -176,8 +176,13 @@ class TestGenerateTransactions:
         weather_map = {(w.store_id, w.date): w for w in weather}
 
         txns = generate_transactions(
-            stores[:1], products[:3], categories,
-            weather_map, [], date(2024, 6, 1), date(2024, 6, 3),
+            stores[:1],
+            products[:3],
+            categories,
+            weather_map,
+            [],
+            date(2024, 6, 1),
+            date(2024, 6, 3),
         )
         for txn in txns:
             assert txn.quantity > 0
@@ -208,18 +213,30 @@ class TestGenerateTransactions:
         jul_map = {(w.store_id, w.date): w for w in jul_weather}
 
         jan_txns = generate_transactions(
-            [stores[0]], winter_products, categories,
-            jan_map, [], date(2024, 1, 1), date(2024, 1, 31),
+            [stores[0]],
+            winter_products,
+            categories,
+            jan_map,
+            [],
+            date(2024, 1, 1),
+            date(2024, 1, 31),
         )
         jul_txns = generate_transactions(
-            [stores[0]], winter_products, categories,
-            jul_map, [], date(2024, 7, 1), date(2024, 7, 31),
+            [stores[0]],
+            winter_products,
+            categories,
+            jul_map,
+            [],
+            date(2024, 7, 1),
+            date(2024, 7, 31),
         )
 
         jan_qty = sum(t.quantity for t in jan_txns)
         jul_qty = sum(t.quantity for t in jul_txns)
 
-        assert jan_qty > jul_qty, f"Winter tires should sell more in Jan ({jan_qty}) than Jul ({jul_qty})"
+        assert jan_qty > jul_qty, (
+            f"Winter tires should sell more in Jan ({jan_qty}) than Jul ({jul_qty})"
+        )
 
 
 class TestGenerateAggregates:
@@ -227,16 +244,40 @@ class TestGenerateAggregates:
         from data.scripts.db.models import Product, Transaction
 
         products = [
-            Product(id=1, sku="T1", name="P1", category_id=1,
-                    unit_price=Decimal("10.00"), unit_cost=Decimal("5.00")),
-            Product(id=2, sku="T2", name="P2", category_id=1,
-                    unit_price=Decimal("20.00"), unit_cost=Decimal("10.00")),
+            Product(
+                id=1,
+                sku="T1",
+                name="P1",
+                category_id=1,
+                unit_price=Decimal("10.00"),
+                unit_cost=Decimal("5.00"),
+            ),
+            Product(
+                id=2,
+                sku="T2",
+                name="P2",
+                category_id=1,
+                unit_price=Decimal("20.00"),
+                unit_cost=Decimal("10.00"),
+            ),
         ]
         txns = [
-            Transaction(store_id=1, product_id=1, transaction_date=date(2024, 1, 1),
-                        quantity=3, unit_price=Decimal("10.00"), total_amount=Decimal("30.00")),
-            Transaction(store_id=1, product_id=2, transaction_date=date(2024, 1, 1),
-                        quantity=2, unit_price=Decimal("20.00"), total_amount=Decimal("40.00")),
+            Transaction(
+                store_id=1,
+                product_id=1,
+                transaction_date=date(2024, 1, 1),
+                quantity=3,
+                unit_price=Decimal("10.00"),
+                total_amount=Decimal("30.00"),
+            ),
+            Transaction(
+                store_id=1,
+                product_id=2,
+                transaction_date=date(2024, 1, 1),
+                quantity=2,
+                unit_price=Decimal("20.00"),
+                total_amount=Decimal("40.00"),
+            ),
         ]
 
         aggs = generate_aggregates(txns, products)

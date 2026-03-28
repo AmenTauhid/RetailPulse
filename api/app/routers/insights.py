@@ -69,16 +69,18 @@ async def get_top_movers(
         if prev_avg == 0:
             continue
         pct = ((curr_avg - prev_avg) / prev_avg) * 100
-        movers.append(TopMover(
-            category_id=key[1],
-            category_name=categories.get(key[1], "Unknown"),
-            store_id=key[0],
-            store_name=stores.get(key[0], "Unknown"),
-            current_avg_qty=round(curr_avg, 2),
-            previous_avg_qty=round(prev_avg, 2),
-            pct_change=round(pct, 2),
-            direction="up" if pct > 0 else "down",
-        ))
+        movers.append(
+            TopMover(
+                category_id=key[1],
+                category_name=categories.get(key[1], "Unknown"),
+                store_id=key[0],
+                store_name=stores.get(key[0], "Unknown"),
+                current_avg_qty=round(curr_avg, 2),
+                previous_avg_qty=round(prev_avg, 2),
+                pct_change=round(pct, 2),
+                direction="up" if pct > 0 else "down",
+            )
+        )
 
     movers.sort(key=lambda m: abs(m.pct_change), reverse=True)
 
@@ -98,10 +100,13 @@ async def get_weather_impact(
             WeatherDaily.temp_mean_c,
             DailyAggregate.total_quantity,
         )
-        .join(WeatherDaily, (
-            (DailyAggregate.store_id == WeatherDaily.store_id) &
-            (DailyAggregate.date == WeatherDaily.date)
-        ))
+        .join(
+            WeatherDaily,
+            (
+                (DailyAggregate.store_id == WeatherDaily.store_id)
+                & (DailyAggregate.date == WeatherDaily.date)
+            ),
+        )
         .join(Category, DailyAggregate.category_id == Category.id)
         .where(DailyAggregate.store_id == store_id)
     )

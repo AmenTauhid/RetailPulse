@@ -5,10 +5,8 @@ a feature matrix where each row is (store_id, category_id, date) with
 temporal, weather, holiday, event, and lag features.
 """
 
-import math
 from datetime import date, timedelta
 
-import numpy as np
 import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -70,7 +68,14 @@ def _add_weather_features(df: pd.DataFrame, weather: pd.DataFrame) -> pd.DataFra
     """Merge weather data and derive weather features."""
     weather = weather.copy()
     weather["date"] = pd.to_datetime(weather["date"])
-    for col in ["temp_high_c", "temp_low_c", "temp_mean_c", "precipitation_mm", "snowfall_cm", "wind_speed_kmh"]:
+    for col in [
+        "temp_high_c",
+        "temp_low_c",
+        "temp_mean_c",
+        "precipitation_mm",
+        "snowfall_cm",
+        "wind_speed_kmh",
+    ]:
         weather[col] = pd.to_numeric(weather[col], errors="coerce")
 
     df = df.merge(
@@ -136,7 +141,7 @@ def _add_holiday_features(df: pd.DataFrame, holidays: pd.DataFrame) -> pd.DataFr
 
     # Christmas proximity (special feature given its retail impact)
     def days_to_christmas(d):
-        if hasattr(d, 'date'):
+        if hasattr(d, "date"):
             d = d.date()
         christmas = date(d.year, 12, 25)
         diff = (christmas - d).days
@@ -165,11 +170,13 @@ def _add_event_features(df: pd.DataFrame, events: pd.DataFrame) -> pd.DataFrame:
         end = event["end_date"] if pd.notna(event["end_date"]) else start
         current = start
         while current <= end:
-            event_rows.append({
-                "city": event["city"],
-                "event_date": current,
-                "estimated_attendance": event["estimated_attendance"] or 0,
-            })
+            event_rows.append(
+                {
+                    "city": event["city"],
+                    "event_date": current,
+                    "estimated_attendance": event["estimated_attendance"] or 0,
+                }
+            )
             current += timedelta(days=1)
 
     event_daily = pd.DataFrame(event_rows)
@@ -179,10 +186,14 @@ def _add_event_features(df: pd.DataFrame, events: pd.DataFrame) -> pd.DataFrame:
         return df
 
     # Aggregate events per city per day
-    event_agg = event_daily.groupby(["city", "event_date"]).agg(
-        event_count=("estimated_attendance", "count"),
-        event_attendance=("estimated_attendance", "sum"),
-    ).reset_index()
+    event_agg = (
+        event_daily.groupby(["city", "event_date"])
+        .agg(
+            event_count=("estimated_attendance", "count"),
+            event_attendance=("estimated_attendance", "sum"),
+        )
+        .reset_index()
+    )
 
     # For each (city, date), compute 3-day window sum
     # We'll do a rolling approach per city
@@ -190,13 +201,20 @@ def _add_event_features(df: pd.DataFrame, events: pd.DataFrame) -> pd.DataFrame:
     for city in event_agg["city"].unique():
         city_events = event_agg[event_agg["city"] == city].set_index("event_date").sort_index()
         # Reindex to all dates
-        all_dates = pd.date_range(city_events.index.min() - timedelta(days=3), city_events.index.max())
+        all_dates = pd.date_range(
+            city_events.index.min() - timedelta(days=3), city_events.index.max()
+        )
         city_events = city_events.reindex(all_dates, fill_value=0)
-        city_events["count_3d"] = city_events["event_count"].rolling(7, center=True, min_periods=1).sum()
-        city_events["attend_3d"] = city_events["event_attendance"].rolling(7, center=True, min_periods=1).sum()
+        city_events["count_3d"] = (
+            city_events["event_count"].rolling(7, center=True, min_periods=1).sum()
+        )
+        city_events["attend_3d"] = (
+            city_events["event_attendance"].rolling(7, center=True, min_periods=1).sum()
+        )
         for dt, row in city_events.iterrows():
-            event_3day[(city, dt.date() if hasattr(dt, 'date') else dt)] = (
-                int(row["count_3d"]), int(row["attend_3d"])
+            event_3day[(city, dt.date() if hasattr(dt, "date") else dt)] = (
+                int(row["count_3d"]),
+                int(row["attend_3d"]),
             )
 
     # Map store_id -> city (will be joined in the main builder)
@@ -289,13 +307,13 @@ def build_features(session: Session) -> pd.DataFrame:
         # Map event features using store city
         df["event_count_3day"] = df.apply(
             lambda r: event_3day.get(
-                (r["city"], r["date"].date() if hasattr(r["date"], 'date') else r["date"]), (0, 0)
+                (r["city"], r["date"].date() if hasattr(r["date"], "date") else r["date"]), (0, 0)
             )[0],
             axis=1,
         )
         df["event_attendance_3day"] = df.apply(
             lambda r: event_3day.get(
-                (r["city"], r["date"].date() if hasattr(r["date"], 'date') else r["date"]), (0, 0)
+                (r["city"], r["date"].date() if hasattr(r["date"], "date") else r["date"]), (0, 0)
             )[1],
             axis=1,
         )
@@ -317,15 +335,37 @@ def build_features(session: Session) -> pd.DataFrame:
 
 # Feature columns used for model training (excludes identifiers and target)
 FEATURE_COLUMNS = [
-    "day_of_week", "month", "week_of_year", "is_weekend", "quarter",
-    "temp_high_c", "temp_low_c", "temp_mean_c", "precipitation_mm",
-    "snowfall_cm", "wind_speed_kmh", "is_snow_day", "is_rain_day",
-    "is_extreme_cold", "is_hot_day", "temp_deviation",
-    "is_holiday", "days_to_next_holiday", "days_from_prev_holiday", "days_to_christmas",
-    "event_count_3day", "event_attendance_3day",
-    "rolling_7d_qty", "rolling_28d_qty", "lag_7d_qty", "lag_14d_qty", "lag_364d_qty",
-    "is_seasonal", "category_peak_match",
-    "store_id", "category_id",
+    "day_of_week",
+    "month",
+    "week_of_year",
+    "is_weekend",
+    "quarter",
+    "temp_high_c",
+    "temp_low_c",
+    "temp_mean_c",
+    "precipitation_mm",
+    "snowfall_cm",
+    "wind_speed_kmh",
+    "is_snow_day",
+    "is_rain_day",
+    "is_extreme_cold",
+    "is_hot_day",
+    "temp_deviation",
+    "is_holiday",
+    "days_to_next_holiday",
+    "days_from_prev_holiday",
+    "days_to_christmas",
+    "event_count_3day",
+    "event_attendance_3day",
+    "rolling_7d_qty",
+    "rolling_28d_qty",
+    "lag_7d_qty",
+    "lag_14d_qty",
+    "lag_364d_qty",
+    "is_seasonal",
+    "category_peak_match",
+    "store_id",
+    "category_id",
 ]
 
 TARGET_COLUMN = "total_quantity"

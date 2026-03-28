@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.app.core.database import get_db
 from api.app.models.schemas import ForecastPoint, ForecastResponse, ModelInfoResponse
-from data.scripts.db.models import Category, DailyAggregate, Holiday, Store, WeatherDaily
+from data.scripts.db.models import Category, DailyAggregate, Holiday, WeatherDaily
 from ml.features.feature_builder import FEATURE_COLUMNS
 
 router = APIRouter()
@@ -55,11 +55,15 @@ async def _build_forecast_features(
     cat_result = await db.execute(select(Category).where(Category.id == category_id))
     category = cat_result.scalar_one_or_none()
 
-    season_months = {"winter": [12, 1, 2], "summer": [6, 7, 8], "spring": [3, 4, 5], "fall": [9, 10, 11]}
+    season_months = {
+        "winter": [12, 1, 2],
+        "summer": [6, 7, 8],
+        "spring": [3, 4, 5],
+        "fall": [9, 10, 11],
+    }
 
     rows = []
     for d in forecast_dates:
-        doy = d.timetuple().tm_yday
         dow = d.weekday()
 
         # Lag features from historical data
@@ -126,9 +130,9 @@ async def _build_forecast_features(
             "lag_14d_qty": qty_14,
             "lag_364d_qty": qty_364,
             "is_seasonal": int(category.is_seasonal) if category else 0,
-            "category_peak_match": int(
-                d.month in season_months.get(category.peak_season or "", [])
-            ) if category else 0,
+            "category_peak_match": int(d.month in season_months.get(category.peak_season or "", []))
+            if category
+            else 0,
         }
         rows.append(row)
 

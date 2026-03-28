@@ -6,7 +6,7 @@ The free tier allows 60 calls/minute — with 10 stores this is well within limi
 
 import logging
 import time
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 import httpx
@@ -61,7 +61,7 @@ def parse_weather_response(data: dict, store_id: int, target_date: date) -> dict
         "wind_speed_kmh": Decimal(str(round(wind.get("speed", 0) * 3.6, 1))),  # m/s to km/h
         "weather_code": str(weather.get("icon", "")),
         "weather_description": weather.get("description", ""),
-        "fetched_at": datetime.now(timezone.utc),
+        "fetched_at": datetime.now(UTC),
     }
 
 

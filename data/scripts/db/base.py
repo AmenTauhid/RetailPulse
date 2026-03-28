@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass
+from sqlalchemy.orm import DeclarativeBase
 
 from etl.pipelines.config import get_settings
 

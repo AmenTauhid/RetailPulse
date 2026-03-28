@@ -24,10 +24,15 @@ class TestFetchCurrentWeather:
         mock_get.return_value = mock_response
 
         store = Store(
-            id=1, store_code="CTC-001", name="Test Store",
-            city="Toronto", province="ON",
-            latitude=Decimal("43.7066"), longitude=Decimal("-79.3985"),
-            store_type="standard", opened_date=date(2020, 1, 1),
+            id=1,
+            store_code="CTC-001",
+            name="Test Store",
+            city="Toronto",
+            province="ON",
+            latitude=Decimal("43.7066"),
+            longitude=Decimal("-79.3985"),
+            store_type="standard",
+            opened_date=date(2020, 1, 1),
         )
         result = fetch_current_weather(store, "test_key")
         assert result is not None
@@ -36,13 +41,19 @@ class TestFetchCurrentWeather:
     @patch("etl.pipelines.weather_pipeline.httpx.get")
     def test_handles_api_error(self, mock_get):
         import httpx
+
         mock_get.side_effect = httpx.HTTPError("API error")
 
         store = Store(
-            id=1, store_code="CTC-001", name="Test Store",
-            city="Toronto", province="ON",
-            latitude=Decimal("43.7066"), longitude=Decimal("-79.3985"),
-            store_type="standard", opened_date=date(2020, 1, 1),
+            id=1,
+            store_code="CTC-001",
+            name="Test Store",
+            city="Toronto",
+            province="ON",
+            latitude=Decimal("43.7066"),
+            longitude=Decimal("-79.3985"),
+            store_type="standard",
+            opened_date=date(2020, 1, 1),
         )
         result = fetch_current_weather(store, "test_key")
         assert result is None

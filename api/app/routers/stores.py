@@ -24,5 +24,6 @@ async def get_store(store_id: int, db: AsyncSession = Depends(get_db)):
     store = result.scalar_one_or_none()
     if store is None:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail=f"Store {store_id} not found")
     return StoreResponse.model_validate(store)

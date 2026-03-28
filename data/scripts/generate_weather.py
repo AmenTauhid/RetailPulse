@@ -64,7 +64,7 @@ def generate_weather(
 
     for store in stores:
         climate = CITY_CLIMATE.get(store.city, (-5.0, 20.0, 100.0))
-        mean_winter, mean_summer, annual_snow = climate
+        mean_winter, mean_summer, _annual_snow = climate
 
         current = start_date
         while current <= end_date:

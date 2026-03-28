@@ -40,10 +40,10 @@ CATEGORY_BASE_DEMAND: dict[str, float] = {
 
 # Seasonal curves: (peak_month, amplitude). amplitude=1.0 means demand doubles at peak.
 SEASON_PROFILES: dict[str, tuple[int, float]] = {
-    "winter": (1, 2.5),     # Peaks January
-    "summer": (7, 2.0),     # Peaks July
-    "spring": (5, 1.8),     # Peaks May
-    "fall": (10, 1.5),      # Peaks October
+    "winter": (1, 2.5),  # Peaks January
+    "summer": (7, 2.0),  # Peaks July
+    "spring": (5, 1.8),  # Peaks May
+    "fall": (10, 1.5),  # Peaks October
 }
 
 # Day-of-week multipliers (Mon=0 through Sun=6)
@@ -198,7 +198,7 @@ def generate_transactions(
 
     transactions: list[Transaction] = []
     current = start_date
-    total_days = (end_date - start_date).days + 1
+    (end_date - start_date).days + 1
 
     while current <= end_date:
         day_of_year = current.timetuple().tm_yday
@@ -212,9 +212,8 @@ def generate_transactions(
         yoy_mult = 1.0 + 0.03 * years_from_start
 
         for store in stores:
-            store_scale = (
-                STORE_TYPE_SCALE.get(store.store_type, 1.0)
-                * CITY_SCALE.get(store.city, 0.8)
+            store_scale = STORE_TYPE_SCALE.get(store.store_type, 1.0) * CITY_SCALE.get(
+                store.city, 0.8
             )
             weather = weather_data.get((store.id, current))
 
@@ -235,7 +234,9 @@ def generate_transactions(
                 # Christmas special boost for Christmas Decor
                 xmas_mult = christmas_mult if cat_name == "Christmas Decor" else 1.0
                 # General Christmas shopping lift for all categories
-                general_xmas = 1.0 + (christmas_mult - 1.0) * 0.3 if cat_name != "Christmas Decor" else 1.0
+                general_xmas = (
+                    1.0 + (christmas_mult - 1.0) * 0.3 if cat_name != "Christmas Decor" else 1.0
+                )
 
                 # Combined lambda for Poisson
                 lam = (
@@ -254,7 +255,7 @@ def generate_transactions(
                 lam /= max(1, len([p for p in products if p.category_id == product.category_id]))
                 lam = max(lam, 0.01)
 
-                quantity = rng.poisson(lam) if hasattr(rng, 'poisson') else _poisson(lam, rng)
+                quantity = rng.poisson(lam) if hasattr(rng, "poisson") else _poisson(lam, rng)
 
                 if quantity > 0:
                     # Slight price variation (+/- 5%) for sales/promotions
@@ -284,7 +285,7 @@ def _poisson(lam: float, rng: random.Random) -> int:
         return 0
     if lam > 30:
         # Normal approximation for large lambda
-        return max(0, int(round(rng.gauss(lam, math.sqrt(lam)))))
+        return max(0, round(rng.gauss(lam, math.sqrt(lam))))
     L = math.exp(-lam)
     k = 0
     p = 1.0

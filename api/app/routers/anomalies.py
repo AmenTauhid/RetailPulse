@@ -10,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.app.core.database import get_db
 from api.app.models.schemas import AnomalyListResponse, AnomalyResponse
 from data.scripts.db.models import Category, DailyAggregate, Store
-from ml.features.feature_builder import FEATURE_COLUMNS, build_features
 from data.scripts.db.session import get_session_factory as get_sync_session_factory
+from ml.features.feature_builder import FEATURE_COLUMNS, build_features
 
 router = APIRouter()
 
@@ -92,18 +92,20 @@ async def get_anomalies(
             continue
 
         row = df.iloc[i]
-        anomalies.append(AnomalyResponse(
-            store_id=int(row["store_id"]),
-            category_id=int(row["category_id"]),
-            date=row["date"].date() if hasattr(row["date"], "date") else row["date"],
-            actual_quantity=int(y_actual[i]),
-            predicted_quantity=round(float(y_pred[i]), 2),
-            residual=round(float(residuals[i]), 2),
-            severity=sev,
-            z_score=round(float(z), 3),
-            store_name=stores.get(int(row["store_id"])),
-            category_name=categories.get(int(row["category_id"])),
-        ))
+        anomalies.append(
+            AnomalyResponse(
+                store_id=int(row["store_id"]),
+                category_id=int(row["category_id"]),
+                date=row["date"].date() if hasattr(row["date"], "date") else row["date"],
+                actual_quantity=int(y_actual[i]),
+                predicted_quantity=round(float(y_pred[i]), 2),
+                residual=round(float(residuals[i]), 2),
+                severity=sev,
+                z_score=round(float(z), 3),
+                store_name=stores.get(int(row["store_id"])),
+                category_name=categories.get(int(row["category_id"])),
+            )
+        )
 
     anomalies.sort(key=lambda a: abs(a.z_score), reverse=True)
     total = len(anomalies)

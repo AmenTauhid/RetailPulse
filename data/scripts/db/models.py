@@ -30,13 +30,9 @@ class Store(Base):
     province: Mapped[str] = mapped_column(String(2), nullable=False)
     latitude: Mapped[Decimal] = mapped_column(Numeric(9, 6), nullable=False)
     longitude: Mapped[Decimal] = mapped_column(Numeric(9, 6), nullable=False)
-    store_type: Mapped[str] = mapped_column(
-        String(20), nullable=False, server_default="standard"
-    )
+    store_type: Mapped[str] = mapped_column(String(20), nullable=False, server_default="standard")
     opened_date: Mapped[date] = mapped_column(Date, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     transactions: Mapped[list["Transaction"]] = relationship(back_populates="store")
     weather_records: Mapped[list["WeatherDaily"]] = relationship(back_populates="store")
@@ -62,15 +58,11 @@ class Product(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     sku: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    category_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("categories.id"), nullable=False
-    )
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey("categories.id"), nullable=False)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     unit_cost: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, server_default="true")
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     category: Mapped["Category"] = relationship(back_populates="products")
     transactions: Mapped[list["Transaction"]] = relationship(back_populates="product")
@@ -85,19 +77,13 @@ class Transaction(Base):
     )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    store_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("stores.id"), nullable=False
-    )
-    product_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("products.id"), nullable=False
-    )
+    store_id: Mapped[int] = mapped_column(Integer, ForeignKey("stores.id"), nullable=False)
+    product_id: Mapped[int] = mapped_column(Integer, ForeignKey("products.id"), nullable=False)
     transaction_date: Mapped[date] = mapped_column(Date, nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     total_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     store: Mapped["Store"] = relationship(back_populates="transactions")
     product: Mapped["Product"] = relationship(back_populates="transactions")
@@ -105,14 +91,10 @@ class Transaction(Base):
 
 class WeatherDaily(Base):
     __tablename__ = "weather_daily"
-    __table_args__ = (
-        UniqueConstraint("store_id", "date", name="uq_weather_store_date"),
-    )
+    __table_args__ = (UniqueConstraint("store_id", "date", name="uq_weather_store_date"),)
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    store_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("stores.id"), nullable=False
-    )
+    store_id: Mapped[int] = mapped_column(Integer, ForeignKey("stores.id"), nullable=False)
     date: Mapped[date] = mapped_column(Date, nullable=False)
     temp_high_c: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
     temp_low_c: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
@@ -122,9 +104,7 @@ class WeatherDaily(Base):
     wind_speed_kmh: Mapped[Decimal | None] = mapped_column(Numeric(5, 1))
     weather_code: Mapped[str | None] = mapped_column(String(20))
     weather_description: Mapped[str | None] = mapped_column(String(50))
-    fetched_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     store: Mapped["Store"] = relationship(back_populates="weather_records")
 
@@ -156,9 +136,7 @@ class Event(Base):
     end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     estimated_attendance: Mapped[int | None] = mapped_column(Integer)
     source: Mapped[str | None] = mapped_column(String(20))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class DailyAggregate(Base):
@@ -168,12 +146,8 @@ class DailyAggregate(Base):
     )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    store_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("stores.id"), nullable=False
-    )
-    category_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("categories.id"), nullable=False
-    )
+    store_id: Mapped[int] = mapped_column(Integer, ForeignKey("stores.id"), nullable=False)
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey("categories.id"), nullable=False)
     date: Mapped[date] = mapped_column(Date, nullable=False)
     total_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     total_revenue: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)

@@ -13,7 +13,7 @@ from pathlib import Path
 import yaml
 
 from data.scripts.db.session import get_session_factory
-from ml.features.feature_builder import build_features, FEATURE_COLUMNS, TARGET_COLUMN
+from ml.features.feature_builder import FEATURE_COLUMNS, TARGET_COLUMN, build_features
 from ml.models.anomaly_detector import detect_anomalies_statistical, train_isolation_forest
 from ml.models.xgboost_model import predict, train_xgboost
 
@@ -35,10 +35,12 @@ def load_config(config_path: str | None) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description="Train RetailPulse demand forecasting models")
-    parser.add_argument("--config", type=str, default="ml/configs/xgboost.yaml",
-                        help="Path to config YAML file")
-    parser.add_argument("--output-dir", type=str, default=None,
-                        help="Output directory for model artifacts")
+    parser.add_argument(
+        "--config", type=str, default="ml/configs/xgboost.yaml", help="Path to config YAML file"
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default=None, help="Output directory for model artifacts"
+    )
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -73,7 +75,7 @@ def main():
 
     # Step 3: Anomaly detection
     logger.info("Step 3/3: Running anomaly detection...")
-    available_features = [c for c in FEATURE_COLUMNS if c in df.columns]
+    [c for c in FEATURE_COLUMNS if c in df.columns]
     y_actual = df[TARGET_COLUMN].values
     y_pred = predict(model, df)
 
@@ -83,8 +85,10 @@ def main():
 
     # Isolation Forest
     contamination = anomaly_config.get("contamination", 0.05)
-    iso_model, iso_anomalies = train_isolation_forest(
-        df, y_actual, y_pred,
+    _iso_model, _iso_anomalies = train_isolation_forest(
+        df,
+        y_actual,
+        y_pred,
         contamination=contamination,
         output_dir=output_dir,
     )

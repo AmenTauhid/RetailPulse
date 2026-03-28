@@ -12,12 +12,8 @@ class Settings(BaseSettings):
     )
 
     # Database
-    database_url: str = (
-        "postgresql+asyncpg://retailpulse:retailpulse@localhost:5432/retailpulse"
-    )
-    database_url_sync: str = (
-        "postgresql://retailpulse:retailpulse@localhost:5432/retailpulse"
-    )
+    database_url: str = "postgresql+asyncpg://retailpulse:retailpulse@localhost:5432/retailpulse"
+    database_url_sync: str = "postgresql://retailpulse:retailpulse@localhost:5432/retailpulse"
     postgres_user: str = "retailpulse"
     postgres_password: str = "retailpulse"
     postgres_db: str = "retailpulse"

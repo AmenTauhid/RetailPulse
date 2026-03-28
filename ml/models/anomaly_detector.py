@@ -101,11 +101,13 @@ def train_isolation_forest(
     pct_error = np.where(y_predicted > 0, residuals / y_predicted, 0)
 
     # Build anomaly feature matrix
-    anomaly_features = pd.DataFrame({
-        "residual": residuals,
-        "pct_error": pct_error,
-        "abs_residual": np.abs(residuals),
-    })
+    anomaly_features = pd.DataFrame(
+        {
+            "residual": residuals,
+            "pct_error": pct_error,
+            "abs_residual": np.abs(residuals),
+        }
+    )
 
     # Add contextual features if available
     for col in ["day_of_week", "month", "is_weekend", "is_holiday", "is_snow_day"]:
@@ -162,7 +164,10 @@ def train_isolation_forest(
 
     logger.info(
         "Detected %d anomalies: %d high, %d medium, %d low",
-        summary["total_anomalies"], summary["high"], summary["medium"], summary["low"],
+        summary["total_anomalies"],
+        summary["high"],
+        summary["medium"],
+        summary["low"],
     )
 
     return model, anomalies

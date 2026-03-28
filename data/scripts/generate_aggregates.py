@@ -22,11 +22,13 @@ def generate_aggregates(
     product_category = {p.id: p.category_id for p in products}
 
     # Accumulate: key = (store_id, category_id, date)
-    agg: dict[tuple, dict] = defaultdict(lambda: {
-        "total_quantity": 0,
-        "total_revenue": Decimal("0.00"),
-        "transaction_count": 0,
-    })
+    agg: dict[tuple, dict] = defaultdict(
+        lambda: {
+            "total_quantity": 0,
+            "total_revenue": Decimal("0.00"),
+            "transaction_count": 0,
+        }
+    )
 
     for txn in transactions:
         cat_id = product_category.get(txn.product_id)

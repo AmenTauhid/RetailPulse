@@ -51,9 +51,12 @@ def chronological_split(
 
     logger.info(
         "Split: train=%d (to %s), val=%d (to %s), test=%d (to %s)",
-        len(train), train["date"].max(),
-        len(val), val["date"].max(),
-        len(test), test["date"].max(),
+        len(train),
+        train["date"].max(),
+        len(val),
+        val["date"].max(),
+        len(test),
+        test["date"].max(),
     )
 
     return train, val, test
@@ -79,7 +82,7 @@ def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> ModelMetrics:
 def get_feature_importance(model: xgb.XGBRegressor, feature_names: list[str]) -> dict[str, float]:
     """Extract feature importance as a sorted dict."""
     importance = model.feature_importances_
-    pairs = sorted(zip(feature_names, importance), key=lambda x: x[1], reverse=True)
+    pairs = sorted(zip(feature_names, importance, strict=False), key=lambda x: x[1], reverse=True)
     return {name: round(float(imp), 6) for name, imp in pairs}
 
 
