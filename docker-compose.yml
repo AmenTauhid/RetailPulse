@@ -16,5 +16,67 @@ services:
       timeout: 5s
       retries: 5
 
+  seed:
+    build:
+      context: .
+      dockerfile: etl/Dockerfile
+    container_name: retailpulse-seed
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL_SYNC: postgresql://retailpulse:retailpulse@db:5432/retailpulse
+      DATABASE_URL: postgresql+asyncpg://retailpulse:retailpulse@db:5432/retailpulse
+    command: python -m etl.pipelines.seed
+    profiles:
+      - setup
+
+  train:
+    build:
+      context: .
+      dockerfile: etl/Dockerfile
+    container_name: retailpulse-train
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL_SYNC: postgresql://retailpulse:retailpulse@db:5432/retailpulse
+      DATABASE_URL: postgresql+asyncpg://retailpulse:retailpulse@db:5432/retailpulse
+    volumes:
+      - model-artifacts:/app/ml/outputs
+    command: python -m ml.models.train
+    profiles:
+      - setup
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: retailpulse-api
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://retailpulse:retailpulse@db:5432/retailpulse
+      DATABASE_URL_SYNC: postgresql://retailpulse:retailpulse@db:5432/retailpulse
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - model-artifacts:/app/ml/outputs
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    container_name: retailpulse-web
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
 volumes:
   pgdata:
+  model-artifacts:

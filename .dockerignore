@@ -1,0 +1,13 @@
+.git
+.venv
+venv
+node_modules
+web/.next
+web/node_modules
+ml/outputs
+__pycache__
+*.pyc
+.env
+.pytest_cache
+.coverage
+htmlcov
